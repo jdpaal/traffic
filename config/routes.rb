@@ -1,4 +1,12 @@
 Traffic::Application.routes.draw do
+#root 'static_pages#home'
+match '/',             to: 'static_pages#home',  via: 'get'
+#match '/blog',        to: 'static_pages#blog',  via: 'get'
+#match '/signup',      to: 'users#new',          via: 'get'
+#match '/auth/login',  to: 'sessions#new',       via: 'get'
+#match '/auth/logout', to: 'sessions#destroy',   via: 'delete'
+
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
