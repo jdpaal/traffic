@@ -9,19 +9,8 @@
 
 # Make sure your secret_key_base is kept private
 # if you're sharing your code publicly.
-require 'securerandom'
+ 
+Traffic::Application.config.secret_token = "921b00fcfabe0368d70627020f3b4c969cfd9bdc2474f4040c1ae976f687014694beb5d36dfc0c41bac8ebde96a14fceaee228d6e34d8183c5d7cc99d310d4f9"
 
-def secure_token
-  token_file = Rails.root.join('.secret')
-  if File.exist?(token_file)
-    # Use the existing token.
-    File.read(token_file).chomp
-  else
-    # Generate a new token and store it in token_file.
-    token = SecureRandom.hex(64)
-    File.write(token_file, token)
-    token
-  end
-end
-
-Traffic::Application.config.secret_key_base = secure_token
+# Will need to come back to this and make the secret token #actually# secret. 
+# This not-so-secret token is just for testing/design purposes.

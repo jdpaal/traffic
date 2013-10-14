@@ -20,8 +20,11 @@ Traffic::Application.configure do
   config.active_support.deprecation = :log
 
   # Raise an error on page load if there are pending migrations
-  config.active_record.migration_error = :page_load
-
+  # config.active_record.migration_error = :page_load
+  # Commenting this line out fixed a problem with rake db:migrate, 
+  # generate model User, pretty big errors caused by this line.
+  # NEED TO EVENTUALLY defin this migration_error method and uncomment this line.
+  
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.

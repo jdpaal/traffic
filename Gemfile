@@ -16,6 +16,7 @@ group :test do
   gem 'capybara', '>= 0.1'
 end
 
+gem 'strong_parameters'
 gem 'bootstrap-sass', '>= 2.3.1.2' # bootstrap for some easy layout to start with
 gem 'faker', '>= 1.0.1' # faker for user volume tests
 gem 'factory_girl_rails', '>= 4.0.0' # factorygirl for creating users in masse for user testing
@@ -51,7 +52,7 @@ end
 gem 'devise', '>= 1.0.0'
 
 # Use ActiveModel has_secure_password
-# gem 'bcrypt-ruby', '~> 3.0.0'
+gem 'bcrypt-ruby', '3.0.0'
 
 # Use unicorn as the app server
 # gem 'unicorn'

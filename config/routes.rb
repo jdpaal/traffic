@@ -1,9 +1,11 @@
 Traffic::Application.routes.draw do
+  resources :users
+  get "users/new"
 
-#root 'static_pages#home'
-match '/',             to: 'static_pages#home',  via: 'get'
+# root 'static_pages#home'
+match '/home',             to: 'static_pages#home',  via: 'get'
 #match '/blog',        to: 'static_pages#blog',  via: 'get'
-#match '/signup',      to: 'users#new',          via: 'get'
+match '/signup',       to: 'users#new',          via: 'get'
 #match '/auth/login',  to: 'sessions#new',       via: 'get'
 #match '/auth/logout', to: 'sessions#destroy',   via: 'delete'
 
