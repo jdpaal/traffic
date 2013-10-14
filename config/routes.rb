@@ -1,4 +1,5 @@
 Traffic::Application.routes.draw do
+
 #root 'static_pages#home'
 match '/',             to: 'static_pages#home',  via: 'get'
 #match '/blog',        to: 'static_pages#blog',  via: 'get'

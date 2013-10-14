@@ -4,9 +4,17 @@ ruby '1.9.3'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '3.2.13'
 
-# Use sqlite3 as the database for Active Record
-gem 'sqlite3', '>= 1.3.8'
 
+group :development do
+	gem 'sqlite3', '>= 1.3.8' # Use sqlite3 as the database for Active Record
+	gem 'rspec-rails', '>= 2.13.0'
+	gem 'rspec'
+end
+
+group :test do
+  gem 'selenium-webdriver', '>= 0.0.1'
+  gem 'capybara', '>= 0.1'
+end
 
 gem 'bootstrap-sass', '>= 2.3.1.2' # bootstrap for some easy layout to start with
 gem 'faker', '>= 1.0.1' # faker for user volume tests
