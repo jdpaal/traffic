@@ -6,10 +6,18 @@
         <ul class="nav pull-right">
           <li><%= link_to "Blog",    '#' %></li>
           <li><a href="https://twitter.com/SimplyTraffic">Twitter</a></li>
-          <li><%= link_to "Login", signup_path %></li>
+          <% if user_signed_in? %>
+            <li>
+            <%= link_to('Logout', destroy_user_session_path, :method => :delete) %>
+            </li>
+          <% else %>
+            <li>
+            <%= link_to('Login', new_user_session_path)  %>  
+            </li>
+          <% end %>
           <li><%= link_to "Request More Info", '#' %></li>
         </ul>
       </nav>
     </div>
-  </div>
+  </div> 
 </header>

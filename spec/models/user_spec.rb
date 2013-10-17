@@ -1,8 +1,9 @@
+
 require 'spec_helper'
 
 describe User do
 
-	before { @user = User.new(email: "user@example.com",
+  before { @user = User.new(email: "user@example.com",
                      password: "foobar", password_confirmation: "foobar") }
 
   subject { @user }
@@ -19,15 +20,15 @@ describe User do
     it { should_not be_valid }
   end
 
-	describe "when email format is valid" do
-	    it "should be valid" do
-	      addresses = %w[user@foo.COM A_US-ER@f.b.org frst.lst@foo.jp a+b@baz.cn]
-	      addresses.each do |valid_address|
-	        @user.email = valid_address
-	        expect(@user).to be_valid
-	      end
-	    end
-  	end
+  describe "when email format is valid" do
+      it "should be valid" do
+        addresses = %w[user@foo.COM A_US-ER@f.b.org frst.lst@foo.jp a+b@baz.cn]
+        addresses.each do |valid_address|
+          @user.email = valid_address
+          expect(@user).to be_valid
+        end
+      end
+    end
 
   describe "when email address is already taken" do
     before do
