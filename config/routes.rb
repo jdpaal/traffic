@@ -3,16 +3,23 @@ Traffic::Application.routes.draw do
   devise_for :users 
 
 
-  resources :users
-  #get "users/new"
-
-#  authenticated :user do
- #   root :to => 'static_pages#home'
-#  end
+  resources :users do
+    get "users/new"
+  end
 
 #root 'static_pages#home'
-match '/home',                        to: 'static_pages#home',              via: 'get'
-match '/',                            to: 'static_pages#home',              via: 'get'
+
+match '/',             to: 'static_pages#home',       via: 'get'
+
+  authenticated :user do
+    root :to => 'static_pages#home'
+  end
+
+match '/locations',    to: 'static_pages#locations',  via: 'get'
+
+
+#match '/home',                        to: 'static_pages#home',              via: 'get'
+
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

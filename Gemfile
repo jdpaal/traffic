@@ -25,6 +25,11 @@ gem 'factory_girl_rails', '>= 4.0.0' # factorygirl for creating users in masse f
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 3.1.7'
 
+# For google maps
+gem 'polylines'
+gem 'ym4r'
+gem 'gmaps4rails'
+
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 
@@ -53,6 +58,9 @@ gem 'devise', '>= 1.0.0'
 
 # Use ActiveModel has_secure_password
 gem 'bcrypt-ruby', '3.0.0'
+
+# For Administrator user roles.
+gem 'cancan'
 
 # Use unicorn as the app server
 # gem 'unicorn'
