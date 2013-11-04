@@ -1,16 +1,51 @@
 <%= content_for :head do %>
 
   <script type="text/javascript">
+    // Enable the visual refresh
+    google.maps.visualRefresh = true;
+
     function initialize() {
+
+      // Options for map init
       var mapOptions = {
-        center: new google.maps.LatLng(-34.397, 150.644),
+        center: new google.maps.LatLng(39.73, -86.27),
         zoom: 8,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
-      var map = new google.maps.Map(document.getElementById("map-canvas"),
+
+      // map object, using options, which will be used to initialize.
+      // (note map is declared at global scope, so support functions
+      // can interact with it)
+      map = new google.maps.Map(document.getElementById("map-canvas"),
           mapOptions);
+
+      //
+      // event listeners:
+      //
+
+      // Put marker where the user clicks
+      google.maps.event.addListener(map, 'click', function(event) {
+        placeMarker(event.latLng);
+      });
+
+    // Ends jquery closure
     }
+
+    //
+    // Support functions:
+    //
+
+    function placeMarker(location) {
+      var marker = new google.maps.Marker({
+          position: location,
+          map: map
+      });
+      // map.setCenter(location);
+    }
+
+    // Initialize google map
     google.maps.event.addDomListener(window, 'load', initialize);
+
   </script>
 
 <% end %>
