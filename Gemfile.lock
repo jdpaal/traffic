@@ -67,7 +67,6 @@ GEM
     faker (1.2.0)
       i18n (~> 0.5)
     ffi (1.9.0)
-    gmaps4rails (1.5.6)
     hike (1.2.3)
     i18n (0.6.1)
     jbuilder (1.5.2)
@@ -89,7 +88,6 @@ GEM
     orm_adapter (0.4.0)
     pg (0.16.0)
     polyglot (0.3.3)
-    polylines (0.1.1)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -177,7 +175,6 @@ GEM
     websocket (1.0.7)
     xpath (2.0.0)
       nokogiri (~> 1.3)
-    ym4r (0.6.1)
 
 PLATFORMS
   ruby
@@ -191,11 +188,9 @@ DEPENDENCIES
   devise (>= 1.0.0)
   factory_girl_rails (>= 4.0.0)
   faker (>= 1.0.1)
-  gmaps4rails
   jbuilder (>= 1.2)
   jquery-rails (>= 3.0.0)
   pg (= 0.16.0)
-  polylines
   rails (= 3.2.13)
   rails_12factor (= 0.0.2)
   rspec
@@ -207,4 +202,3 @@ DEPENDENCIES
   strong_parameters
   turbolinks (>= 1.0.0)
   uglifier (>= 1.3.0)
-  ym4r
