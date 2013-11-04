@@ -72,8 +72,26 @@ function placeMarker(location) {
       animation: google.maps.Animation.DROP,
       map: map
   });
+  // Event listener for dragging new marker
+  google.maps.event.addListener(marker, 'dragend', updateMarkerPosition);
   storeNewMarker(marker);
   showNewMarkerInList(marker);
+}
+
+//
+// Fired after dragging a marker. Note that 'this' is
+// the marker
+//
+function updateMarkerPosition(event) {
+  var
+    marker = this;
+    id = marker.__gm_id,
+    lat = marker.position.lb,
+    lng = marker.position.mb,
+    li = $('.locations').find("li[marker-id='"+ id +"']");
+
+    li.find('.lat').text(lat);
+    li.find('.lng').text(lng);
 }
 
 //
@@ -93,21 +111,19 @@ function storeNewMarker(marker) {
 function showNewMarkerInList(marker) {
   var
     lat = marker.position.lb,
-
     lng = marker.position.mb,
-
     id = marker.__gm_id,
+    toShow = "Lat: <span class='lat'>" + lat + "</span>, Long: <span class='lng'>" + lng + "</span>";
 
-    toShow = "Lat: " + lat + ", Long: " + lng,
-
-    removeButton = $('<a>')
+  var removeButton = $('<a>')
     .attr('href','javascript:void(0)')
     .addClass('remove')
     .attr('marker-id', id)
-    .text("Remove"),
+    .text("Remove");
 
-    newItem = $('<li>')
-    .text(toShow)
+  var newItem = $('<li>')
+    .attr('marker-id', id)
+    .html(toShow)
     .append('<br />')
     .append(removeButton);
 
@@ -121,6 +137,3 @@ function removeMarker(id) {
   marker = markers[id];
   marker.setMap(null);
 }
-
-
-
