@@ -14,6 +14,7 @@ function initHomePageMap() {
   // Create a new marker where the user clicks
   google.maps.event.addListener(map, 'click', function(event) {
     placeMarker(event.latLng);
+    showNewMarkerInList(event.latLng);
   });
 }
 
@@ -42,3 +43,15 @@ function placeMarker(location) {
       map: map
   });
 }
+
+function showNewMarkerInList(location) {
+  var
+    lat = location.lb,
+    lng = location.mb,
+    toShow = "Lat: " + lat + ", Long: " + lng,
+    newItem = $('<li>').text(toShow);
+  $('.locations').append(newItem);
+}
+
+
+
