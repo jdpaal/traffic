@@ -68,6 +68,8 @@ function homePageMapOptions() {
 function placeMarker(location) {
   var marker = new google.maps.Marker({
       position: location,
+      draggable:true,
+      animation: google.maps.Animation.DROP,
       map: map
   });
   storeNewMarker(marker);
