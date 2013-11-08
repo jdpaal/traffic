@@ -3,6 +3,10 @@ Traffic::Application.routes.draw do
   devise_for :users
 
   root :to => "static_pages#home"
+  
+  resources :locations, only: [:new, :create, :destroy]
+
+    match '/locations',  to: 'locations#new',            via: 'get'
 
   [:locations, :home].each do |action|
     match "#{action}" => "static_pages##{action}", as: "#{action}", via: "get"
