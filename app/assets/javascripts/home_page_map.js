@@ -4,7 +4,7 @@ function initHomePageMap() {
   google.maps.visualRefresh = true;
 
   // Global variable for storing new markers
-  markers = {}
+  markers = {} 
 
   var mapOptions = homePageMapOptions();
   var container = $('#map-canvas')[0];
@@ -137,3 +137,8 @@ function removeMarker(id) {
   marker = markers[id];
   marker.setMap(null);
 }
+
+
+
+
+

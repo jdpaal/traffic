@@ -16,7 +16,7 @@ Traffic::Application.routes.draw do
     get "users/new"
   end
 
-  authenticated :user do
+  authenticated :user do 
     root :to => "static_pages#home"
   end
 
