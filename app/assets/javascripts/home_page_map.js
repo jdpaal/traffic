@@ -4,7 +4,7 @@ function initHomePageMap() {
   google.maps.visualRefresh = true;
 
   // Global variable for storing new markers
-  markers = {} 
+  markers = {}
 
   var mapOptions = homePageMapOptions();
   var container = $('#map-canvas')[0];
@@ -86,8 +86,8 @@ function updateMarkerPosition(event) {
   var
     marker = this;
     id = marker.__gm_id,
-    lat = marker.position.lb,
-    lng = marker.position.mb,
+    lat = marker.position.lat(),
+    lng = marker.position.lng(),
     li = $('.locations').find("li[marker-id='"+ id +"']");
 
     li.find('.lat').text(lat);
@@ -110,8 +110,8 @@ function storeNewMarker(marker) {
 //
 function showNewMarkerInList(marker) {
   var
-    lat = marker.position.lb,
-    lng = marker.position.mb,
+    lat = marker.position.lat(),
+    lng = marker.position.lng(),
     id = marker.__gm_id,
     toShow = "Lat: <span class='lat'>" + lat + "</span>, Long: <span class='lng'>" + lng + "</span>";
 
