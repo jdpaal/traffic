@@ -1,7 +1,7 @@
-<h2>My locations</h2>
+<h2>My <%= pluralize(@locations.size, "location") %></h2>
 
-<% @locations.each do |location| %>
+<% @locations.each_with_index do |location, index| %>
 
-  <p>A location</p>
+  <p>Location: <%= index %></p>
 
 <% end %>
