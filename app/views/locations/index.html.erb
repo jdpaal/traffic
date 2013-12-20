@@ -1,9 +1,11 @@
 <h2>My <%= pluralize(@locations.size, "location") %></h2>
 
+<h3>My user id: <%= current_user.id %></h3>
+
 <% @locations.each_with_index do |location, index| %>
 
   <p data-id="<%= location.id %>">
-    Location <%= index+1 %>: Lat: <%= location.lat %>, Long: <%= location.lng %><br />
+    Location <%= index+1 %>: Lat: <%= location.lat %>, Long: <%= location.lng %>, user: <%= location.user_id %><br />
     <%= link_to "Delete",
       location_path(location.id),
       :confirm => "Are you sure?",
