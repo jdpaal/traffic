@@ -20,7 +20,9 @@ function initHomePageMap() {
 
   // Create a new marker where the user clicks
   google.maps.event.addListener(map, 'click', function(event) {
-    placeMarker(event.latLng);
+    placeMarker({
+      location: event.latLng
+    });
   });
 
   //
@@ -73,14 +75,17 @@ function homePageMapOptions() {
 };
 
 //
-// Create new marker and process it
+// Create new marker and process it. Only required property of the data param
+// is location. The other have defaults baked in to the logic below (icon image,
+// draggable, etc)
 //
-function placeMarker(location) {
+function placeMarker(data) {
   var marker = new google.maps.Marker({
-      position: location,
-      draggable:true,
+      position: data.location,
+      draggable: (data.draggable == undefined) ? true : data.draggable,
       animation: google.maps.Animation.DROP,
-      map: map
+      map: map,
+      icon: data.icon || "http://maps.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png"
   });
   // Event listener for dragging new marker
   google.maps.event.addListener(marker, 'dragend', updateMarkerPosition);

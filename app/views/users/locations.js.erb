@@ -1,10 +1,22 @@
 <% @locations.each do |location| %>
 
+  var marker_image;
+
+  <% if location.user_id == current_user.id %>
+    marker_image = "http://maps.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png";
+  <% else %>
+    marker_image = "http://maps.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png";
+  <% end %>
+
   var
     lat = "<%= location.lat %>",
     lng = "<%= location.lng %>",
     googleLatLng = new google.maps.LatLng(lat, lng);
 
-  placeMarker(googleLatLng);
+  placeMarker({
+    location: googleLatLng,
+    draggable: false,
+    icon: marker_image
+  });
 
 <% end %>
