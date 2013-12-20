@@ -2,6 +2,13 @@
 
 <% @locations.each_with_index do |location, index| %>
 
-  <p>Location: <%= index %></p>
+  <p data-id="<%= location.id %>">
+    Location <%= index+1 %>: Lat: <%= location.lat %>, Long: <%= location.lng %><br />
+    <%= link_to "Delete",
+      location_path(location.id),
+      :confirm => "Are you sure?",
+      :method => :delete,
+      :remote => true %>
+  </p>
 
 <% end %>

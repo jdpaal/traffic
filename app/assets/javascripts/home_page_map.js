@@ -34,6 +34,16 @@ function initHomePageMap() {
     $this.closest('li').remove();
   })
 
+  //
+  // Save a placed marker
+  //
+  $('.locations').on("click", ".save-location", function() {
+    var
+      $this = $(this),
+      markerId = $(this).attr('marker-id');
+    saveMarker(markerId);
+  })
+
 // Ends initHomePageMap()
 }
 
@@ -121,11 +131,19 @@ function showNewMarkerInList(marker) {
     .attr('marker-id', id)
     .text("Remove");
 
+  var saveButton = $('<a>')
+    .attr('href','javascript:void(0)')
+    .addClass('save-location')
+    .attr('marker-id', id)
+    .text("Save");
+
   var newItem = $('<li>')
     .attr('marker-id', id)
     .html(toShow)
     .append('<br />')
-    .append(removeButton);
+    .append(removeButton)
+    .append(" ")
+    .append(saveButton);
 
   $('.locations').append(newItem);
 }
@@ -134,8 +152,38 @@ function showNewMarkerInList(marker) {
 // Removes a marker based on it's __gm_id
 //
 function removeMarker(id) {
-  marker = markers[id];
+  var marker = markers[id];
   marker.setMap(null);
+}
+
+//
+// Saves a marker for the current user
+//
+function saveMarker(id) {
+  var
+    marker = markers[id],
+    lat = marker.position.lat(),
+    lng = marker.position.lng();
+  var locationData = {
+    lat: lat,
+    lng: lng
+  };
+
+  $.ajax({
+    type: "POST",
+    url: "/locations",
+    data: locationData,
+    success: function(data) {
+      alert("Saved!");
+    },
+    error: function(data) {
+      alert("Error saving");
+    },
+    complete: function(data) {
+      console.log("Save location complete");
+    }
+  });
+
 }
 
 
