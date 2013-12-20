@@ -1,6 +1,12 @@
 class LocationsController < ApplicationController
   before_filter :authenticate_user!
 
+  respond_to :js, :html
+
+  #
+  # CRUD
+  #
+
   def index
     @locations = current_user.locations.all
   end

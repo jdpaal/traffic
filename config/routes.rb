@@ -4,11 +4,11 @@ Traffic::Application.routes.draw do
 
   root :to => "static_pages#home"
 
-  resources :locations, only: [:index, :new, :create, :destroy]
+  #
+  # Resources
+  #
 
-  [:locations, :home].each do |action|
-    match "#{action}" => "static_pages##{action}", as: "#{action}", via: "get"
-  end
+  resources :locations, only: [:index, :new, :create, :destroy]
 
   resources :users do
     get "users/new"
@@ -16,6 +16,20 @@ Traffic::Application.routes.draw do
 
   authenticated :user do
     root :to => "static_pages#home"
+  end
+
+  #
+  # Custom routes
+  #
+
+  # User routes
+  [:locations].each do |action|
+    match "/user/:id/#{action}" => "users##{action}", as: "user_#{action}"
+  end
+
+  # Static page routes
+  [:locations, :home].each do |action|
+    match "#{action}" => "static_pages##{action}", as: "#{action}", via: "get"
   end
 
 end
