@@ -1,6 +1,7 @@
 <% @locations.each do |location| %>
 
   var marker_image;
+  var metaData = "<%= location.to_json %>";
 
   <% if location.user_id == current_user.id %>
     marker_image = "http://maps.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png";
@@ -16,7 +17,8 @@
   placeMarker({
     location: googleLatLng,
     draggable: false,
-    icon: marker_image
+    icon: marker_image,
+    metaData: metaData
   });
 
 <% end %>

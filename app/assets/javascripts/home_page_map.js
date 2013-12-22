@@ -5,6 +5,7 @@ function initHomePageMap() {
 
   // Global variable for storing new markers
   markers = {}
+  infoWindows = {}
 
   var mapOptions = homePageMapOptions();
   var container = $('#map-canvas')[0];
@@ -89,7 +90,12 @@ function homePageMapOptions() {
 // is location. The other have defaults baked in to the logic below (icon image,
 // draggable, etc)
 //
+// the metaData property is only present when the location has been loaded from
+// the database. In this case the metaData is the entire json response for that
+// location, so we can use it to get the owner id, and more.
+//
 function placeMarker(data) {
+  var metaData = data.metaData || false;
   var marker = new google.maps.Marker({
       position: data.location,
       draggable: (data.draggable == undefined) ? true : data.draggable,
@@ -99,13 +105,21 @@ function placeMarker(data) {
   });
   // Event listener for dragging new marker
   google.maps.event.addListener(marker, 'dragend', updateMarkerPosition);
-  storeNewMarker(marker);
+
+  // Event listener for clicking a marker to open an info window
+  google.maps.event.addListener(marker, 'click', function() {
+    setupMarkerInfoWindow(this, metaData);
+  });
+
+  // Save marker in a global so it can be referenced later by its ID
+  addMarkerToGlobalVar(marker);
+
+  // Render the marker to the view
   showNewMarkerInList(marker);
 }
 
 //
-// Fired after dragging a marker. Note that 'this' is
-// the marker
+// Fired after dragging a marker. Note that 'this' is the marker
 //
 function updateMarkerPosition(event) {
   var
@@ -120,11 +134,42 @@ function updateMarkerPosition(event) {
 }
 
 //
+// Fired after clicking a marker. Note that 'this' is the marker
+//
+function setupMarkerInfoWindow(marker, metaData) {
+  var newInfoWindow;
+
+  // If metaData is available, use it to fill this marker's info window.
+  if (metaData) {
+    newInfoWindow = new google.maps.InfoWindow({
+      content: generateMarkerInfoWindowContent(marker, metaData)
+    });
+  } else {
+    newInfoWindow = new google.maps.InfoWindow({
+      content: unsavedLocationInfoWindowContent(),
+    });
+  }
+
+  // Close all info windows that are in the global storage variable
+  for(var infoWindowId in infoWindows) {
+    infoWindows[infoWindowId].close()
+  }
+
+  // Open the new info window
+  newInfoWindow.open(map,marker);
+
+  // Add this info window to the global storage, using its ID as the property
+  // key.
+  infoWindows[newInfoWindow.anchor.__gm_id ] = newInfoWindow;
+
+}
+
+//
 // Creates a reference to this new marker so we can
 // easily look it up by its __gm_id and manipulate
 // it later.
 //
-function storeNewMarker(marker) {
+function addMarkerToGlobalVar(marker) {
   var id = marker.__gm_id;
   markers[id] = marker;
 }
@@ -205,5 +250,37 @@ function saveMarker(id) {
       console.log("Save location complete");
     }
   });
+}
 
+//
+// Upon clicking a marker, do a lookup for it's info window content
+//
+function generateMarkerInfoWindowContent(marker, metaData) {
+  var
+    metaData = metaData.replace(/&quot;/g,'\"'),
+    metaData = JSON.parse(metaData).location,
+    user_id = metaData.user_id;
+
+  return '<div id="content">'+
+    '<div id="siteNotice">'+
+    '</div>'+
+    '<h5 id="firstHeading" class="firstHeading">Loaded from database</h5>'+
+    '<div id="bodyContent">'+
+    '<p>Owned by user with <b>id: '+ user_id +'</b></p>'+
+    '</div>'+
+    '</div>';
+}
+
+//
+// Info window content when users click on a marker that is not yet saved
+//
+function unsavedLocationInfoWindowContent() {
+  return '<div id="content">'+
+    '<div id="siteNotice">'+
+    '</div>'+
+    '<h5 id="firstHeading" class="firstHeading">Unsaved</h5>'+
+    '<div id="bodyContent">'+
+    '<p><b>Not yet saved</b>. Click save to save this location to the databse.</p>'+
+    '</div>'+
+    '</div>';
 }
