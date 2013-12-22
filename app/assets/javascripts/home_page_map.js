@@ -32,8 +32,8 @@ function initHomePageMap() {
     var
       $this = $(this),
       markerId = $(this).attr('marker-id');
-    removeMarker(markerId);
-    $this.closest('li').remove();
+    removeMarkerFromMap(markerId);
+    removeMarkerDetailsFromList(markerId);
   })
 
   //
@@ -44,6 +44,16 @@ function initHomePageMap() {
       $this = $(this),
       markerId = $(this).attr('marker-id');
     saveMarker(markerId);
+  })
+
+  //
+  // Clear map
+  //
+  $('.clear-map').click(function() {
+    for(var markerId in markers) {
+      removeMarkerFromMap(markerId);
+      removeMarkerDetailsFromList(markerId);
+    }
   })
 
 // Ends initHomePageMap()
@@ -154,11 +164,18 @@ function showNewMarkerInList(marker) {
 }
 
 //
-// Removes a marker based on it's __gm_id
+// Removes a marker based on it's __gm_id from the map canvas
 //
-function removeMarker(id) {
+function removeMarkerFromMap(id) {
   var marker = markers[id];
   marker.setMap(null);
+}
+
+//
+// Removes the location details from the list of locations
+//
+function removeMarkerDetailsFromList(id) {
+  $('.locations').find("li[marker-id='"+id+"']").remove();
 }
 
 //
