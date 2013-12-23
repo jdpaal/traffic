@@ -32,8 +32,8 @@ function initHomePageMap() {
   $('.locations').on("click", ".remove", function() {
     var
       $this = $(this),
-      markerId = $(this).attr('marker-id');
-    removeMarkerFromMap(markerId);
+      geoHash = $(this).attr('geo-hash');
+    removeMarkerFromMap(markers[geoHash]);
   })
 
   //
@@ -42,16 +42,16 @@ function initHomePageMap() {
   $('.locations').on("click", ".save-location", function() {
     var
       $this = $(this),
-      markerId = $(this).attr('marker-id');
-    saveMarker(markerId);
+      geoHash = $(this).attr('geo-hash');
+    saveMarker(markers[geoHash]);
   })
 
   //
   // Clear map
   //
   $('.clear-map').click(function() {
-    for(var markerId in markers) {
-      removeMarkerFromMap(markerId);
+    for(var geoHash in markers) {
+      removeMarkerFromMap(markers[geoHash]);
     }
   })
 
@@ -103,6 +103,8 @@ function homePageMapOptions() {
 // location, so we can use it to get the owner id, and more.
 //
 function placeMarker(data) {
+  // TODO: Stop if this marker already exists on the map
+
   var metaData = data.metaData || false;
   var marker = new google.maps.Marker({
       position: data.location,
@@ -129,15 +131,19 @@ function placeMarker(data) {
 }
 
 //
-// Fired after dragging a marker. Note that 'this' is the marker
+// Fired after dragging a marker. Note that 'this' is the marker.
+//
+// Note that in this case we have to use the marker's gm_id instead of it's
+// geoHash, since once we drag a location its geoHash changes and it no longer
+// matches the geoHash used when the marker was created.
 //
 function updateMarkerPosition(event) {
   var
     marker = this;
-    id = marker.__gm_id,
+    geoHash = markerGeoHash(marker),
     lat = marker.position.lat(),
     lng = marker.position.lng(),
-    li = $('.locations').find("li[marker-id='"+ id +"']");
+    li = $('.locations').find("li[marker-id='"+ marker.__gm_id +"']");
 
     li.find('.lat').text(lat);
     li.find('.lng').text(lng);
@@ -180,8 +186,8 @@ function setupMarkerInfoWindow(marker, metaData) {
 // it later.
 //
 function addMarkerToGlobalVar(marker) {
-  var id = marker.__gm_id;
-  markers[id] = marker;
+  var geoHash = markerGeoHash(marker);
+  markers[geoHash] = marker;
 }
 
 //
@@ -192,23 +198,24 @@ function showNewMarkerInList(marker) {
   var
     lat = marker.position.lat(),
     lng = marker.position.lng(),
-    id = marker.__gm_id,
+    geoHash = markerGeoHash(marker),
     toShow = "Lat: <span class='lat'>" + lat + "</span>, Long: <span class='lng'>" + lng + "</span>";
 
   var removeButton = $('<a>')
     .attr('href','javascript:void(0)')
     .addClass('remove')
-    .attr('marker-id', id)
+    .attr('geo-hash', geoHash)
     .text("Remove");
 
   var saveButton = $('<a>')
     .attr('href','javascript:void(0)')
     .addClass('save-location')
-    .attr('marker-id', id)
+    .attr('geo-hash', geoHash)
     .text("Save");
 
   var newItem = $('<li>')
-    .attr('marker-id', id)
+    .attr('geo-hash', geoHash)
+    .attr('marker-id', marker.__gm_id)
     .html(toShow)
     .append('<br />')
     .append(removeButton)
@@ -221,16 +228,15 @@ function showNewMarkerInList(marker) {
 //
 // Removes a marker based on it's __gm_id from the map canvas
 //
-function removeMarkerFromMap(id) {
-  var marker = markers[id];
+function removeMarkerFromMap(marker) {
   // Remove events associated with this marker (not 100% this does the trick)
   google.maps.event.clearInstanceListeners(marker);
   // Visually remove marker from map
   marker.setMap(null);
   // Remove marker details from text list on page
-  removeMarkerDetailsFromList(id);
+  removeMarkerDetailsFromList(marker);
   // Delete the property from the global markers variable
-  delete markers[id];
+  delete markers[markerGeoHash(marker)];
   // Not sure if this is needed...
   delete marker;
 
@@ -238,18 +244,21 @@ function removeMarkerFromMap(id) {
 }
 
 //
-// Removes the location details from the list of locations
+// Removes the location details from the list of locations. We do a find by
+// both geo and mg_id to catch some cases where the we need to remove a marker
+// after it has been moved around the map.
 //
-function removeMarkerDetailsFromList(id) {
-  $('.locations').find("li[marker-id='"+id+"']").remove();
+function removeMarkerDetailsFromList(marker) {
+  $('.locations').find("li[geo-hash='"+markerGeoHash(marker)+"']").remove();
+  $('.locations').find("li[marker-id='"+marker.__gm_id+"']").remove();
 }
 
 //
 // Saves a marker for the current user
 //
-function saveMarker(id) {
+function saveMarker(geoHash) {
   var
-    marker = markers[id],
+    marker = markers[geoHash],
     lat = marker.position.lat(),
     lng = marker.position.lng();
   var locationData = {
@@ -318,9 +327,9 @@ function processBoundsChange() {
 
 // Looks through markers and removes the ones that are out of view.
 function removeMarkersOutOfView() {
-  for(var markerId in markers) {
-    if ( isMarkerOutOfBounds(markers[markerId]) ) {
-      removeMarkerFromMap(markerId);
+  for(var geoHash in markers) {
+    if ( isMarkerOutOfBounds(markers[geoHash]) ) {
+      removeMarkerFromMap(markers[geoHash]);
     }
   }
 }
@@ -337,3 +346,9 @@ function updateMarkerLog() {
   $('.markers-count').text(markersInObject);
 }
 
+// Generates a unique value for this marker using its lat long
+function markerGeoHash(marker) {
+  var coordinatesHash = [ marker.getPosition().lat(),
+                          marker.getPosition().lng() ].join('');
+  return coordinatesHash.replace(/\./g,"").replace(/,/g, "").replace(/-/g,"");
+}
