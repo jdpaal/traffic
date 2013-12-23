@@ -30,4 +30,13 @@ class LocationsController < ApplicationController
     render status: 200
   end
 
+  #
+  # Custom actions
+  #
+
+  def all
+    @locations = Location.all
+    render "shared/show_locations"
+  end
+
 end

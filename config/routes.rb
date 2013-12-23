@@ -32,4 +32,9 @@ Traffic::Application.routes.draw do
     match "#{action}" => "static_pages##{action}", as: "#{action}", via: "get"
   end
 
+  # Location routes
+  [:all].each do |action|
+    match "/locations/#{action}" => "locations##{action}"
+  end
+
 end

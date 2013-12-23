@@ -30,6 +30,7 @@ class UsersController < ApplicationController
     user_id = params[:id]
     @user = User.find(user_id)
     @locations = @user.locations.all
+    render "shared/show_locations"
   end
 
   private
