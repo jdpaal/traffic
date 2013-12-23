@@ -34,7 +34,6 @@ function initHomePageMap() {
       $this = $(this),
       markerId = $(this).attr('marker-id');
     removeMarkerFromMap(markerId);
-    removeMarkerDetailsFromList(markerId);
   })
 
   //
@@ -53,9 +52,18 @@ function initHomePageMap() {
   $('.clear-map').click(function() {
     for(var markerId in markers) {
       removeMarkerFromMap(markerId);
-      removeMarkerDetailsFromList(markerId);
     }
   })
+
+  //
+  // When viewing all locations, we initially only load the markers that exist
+  // within the map's current view area. We want to also listen for the map's
+  // bounds_changed event and then do two things:
+  //
+  // 1) Remove locations that are now out of view area
+  // 2) TODO: load in any new locations that aren't in the view but need to be
+  //
+  google.maps.event.addListener(map,'bounds_changed', processBoundsChange);
 
 // Ends initHomePageMap()
 }
@@ -116,6 +124,8 @@ function placeMarker(data) {
 
   // Render the marker to the view
   showNewMarkerInList(marker);
+
+  updateMarkerLog();
 }
 
 //
@@ -213,7 +223,18 @@ function showNewMarkerInList(marker) {
 //
 function removeMarkerFromMap(id) {
   var marker = markers[id];
+  // Remove events associated with this marker (not 100% this does the trick)
+  google.maps.event.clearInstanceListeners(marker);
+  // Visually remove marker from map
   marker.setMap(null);
+  // Remove marker details from text list on page
+  removeMarkerDetailsFromList(id);
+  // Delete the property from the global markers variable
+  delete markers[id];
+  // Not sure if this is needed...
+  delete marker;
+
+  updateMarkerLog();
 }
 
 //
@@ -284,3 +305,35 @@ function unsavedLocationInfoWindowContent() {
     '</div>'+
     '</div>';
 }
+
+// When the bounds of the map change, we look to see if we can remove markers
+// that are no longer in the view. We will also have to remove the events bound
+// to them.
+//
+// TODO: add in markers that now need to be in the view
+function processBoundsChange() {
+  removeMarkersOutOfView();
+  updateMarkerLog();
+}
+
+// Looks through markers and removes the ones that are out of view.
+function removeMarkersOutOfView() {
+  for(var markerId in markers) {
+    if ( isMarkerOutOfBounds(markers[markerId]) ) {
+      removeMarkerFromMap(markerId);
+    }
+  }
+}
+
+// Simple check to see if a marker is out of the map's current view area
+// ("bounds")
+function isMarkerOutOfBounds(marker) {
+  var inView = map.getBounds().contains( marker.getPosition() );
+  return !inView;
+}
+
+function updateMarkerLog() {
+  var markersInObject = Object.keys(markers).length;
+  $('.markers-count').text(markersInObject);
+}
+
