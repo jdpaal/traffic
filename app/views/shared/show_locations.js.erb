@@ -1,3 +1,9 @@
+// Log how many locations came back from database call
+var
+  location_count = "<%= @locations.size %>",
+  locations_placed = 0;
+console.log(location_count+" locations returned from databse");
+
 <% @locations.each do |location| %>
 
   var marker_image;
@@ -14,11 +20,21 @@
     lng = "<%= location.lng %>",
     googleLatLng = new google.maps.LatLng(lat, lng);
 
-  placeMarker({
-    location: googleLatLng,
-    draggable: false,
-    icon: marker_image,
-    metaData: metaData
-  });
+  // Only place marker if it exists within the area of the current map view
+  if( map.getBounds().contains( googleLatLng ) ) {
+     placeMarker({
+      location: googleLatLng,
+      draggable: false,
+      icon: marker_image,
+      metaData: metaData
+    });
+
+    locations_placed++;
+
+  } else {
+    console.log("marker not placed. out of map view area.");
+  }
 
 <% end %>
+
+console.log("placed "+locations_placed+" markers");
