@@ -102,7 +102,7 @@ global.placeMarker = (data) ->
     draggable: (if (data.draggable is `undefined`) then true else data.draggable)
     animation: google.maps.Animation.DROP
     map: map
-    icon: data.icon or "http://maps.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png"
+    icon: data.icon or "http://maps.google.com/intl/en_us/mapfiles/ms/micons/yellow.png"
   )
 
   # If this location is loaded from db, we use it's ID in the database as the
@@ -223,8 +223,7 @@ removeMarkerDetailsFromList = (marker) ->
 #
 # Saves a marker for the current user
 #
-saveMarker = (locationId) ->
-  marker = markers[locationId]
+saveMarker = (marker) ->
   lat = marker.position.lat()
   lng = marker.position.lng()
   locationData =
@@ -236,7 +235,8 @@ saveMarker = (locationId) ->
     url: "/locations"
     data: locationData
     success: (data) ->
-      alert "Saved!"
+      console.log "Saved new location"
+      marker.setIcon("http://labs.google.com/ridefinder/images/mm_20_red.png")
 
     error: (data) ->
       alert "Error saving"

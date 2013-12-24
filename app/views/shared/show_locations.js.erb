@@ -9,10 +9,11 @@ console.log(location_count+" locations returned from databse");
   var marker_image;
   var metaData = "<%= location.to_json %>";
 
+  // http://mabp.kiev.ua/2010/01/12/google-map-markers/
   <% if location.user_id == current_user.id %>
-    marker_image = "http://maps.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png";
+    marker_image = "http://labs.google.com/ridefinder/images/mm_20_green.png";
   <% else %>
-    marker_image = "http://maps.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png";
+    marker_image = "http://labs.google.com/ridefinder/images/mm_20_red.png";
   <% end %>
 
   var
