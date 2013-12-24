@@ -20,8 +20,11 @@ global.initHomePageMap = ->
   # Event listeners for behavior
   #-----------------------------
 
-  # Create a new marker where the user clicks
+  # Create a new marker where the user clicks. Only allow one unsaved marker at
+  # a time. So we clear the marker with key "new" each time the user adds a new
+  # one
   google.maps.event.addListener map, "click", (event) ->
+    removeMarkerFromMap markers["new"] if markers["new"]
     placeMarker location: event.latLng
 
   #
@@ -29,16 +32,16 @@ global.initHomePageMap = ->
   #
   $(".locations").on "click", ".remove", ->
     $this = $(this)
-    geoHash = $(this).attr("geo-hash")
-    removeMarkerFromMap markers[geoHash]
+    locationId = $(this).attr("location-id")
+    removeMarkerFromMap markers[locationId]
 
   #
   # Save a placed marker
   #
   $(".locations").on "click", ".save-location", ->
     $this = $(this)
-    geoHash = $(this).attr("geo-hash")
-    saveMarker markers[geoHash]
+    locationId = $(this).attr("location-id")
+    saveMarker markers[locationId]
 
   #
   # Clear map
@@ -102,6 +105,14 @@ global.placeMarker = (data) ->
     icon: data.icon or "http://maps.google.com/intl/en_us/mapfiles/ms/micons/red-dot.png"
   )
 
+  # If this location is loaded from db, we use it's ID in the database as the
+  # id property of the marker. If it is not coming from the database then it is
+  # a new, unsaved location and we give it the key "new".
+  if metaData
+    marker.id = propertyFromRubyResponse(metaData, "id")
+  else
+    marker.id = "new"
+
   # Event listener for dragging new marker
   google.maps.event.addListener marker, "dragend", updateMarkerPosition
 
@@ -110,7 +121,7 @@ global.placeMarker = (data) ->
     setupMarkerInfoWindow this, metaData
 
   # Save marker in a global so it can be referenced later by its ID
-  addMarkerToGlobalVar marker
+  addMarkerToGlobalVar marker, metaData
 
   # Render the marker to the view
   showNewMarkerInList marker
@@ -119,16 +130,12 @@ global.placeMarker = (data) ->
 #
 # Fired after dragging a marker. Note that 'this' is the marker.
 #
-# Note that in this case we have to use the marker's gm_id instead of it's
-# geoHash, since once we drag a location its geoHash changes and it no longer
-# matches the geoHash used when the marker was created.
-#
 updateMarkerPosition = (event) ->
   marker = this
-  geoHash = markerGeoHash(marker)
+  locationId = marker.id
   lat = marker.position.lat()
   lng = marker.position.lng()
-  li = $(".locations").find("li[marker-id='" + marker.__gm_id + "']")
+  li = $(".locations").find("li[location-id='" + locationId + "']")
 
   li.find(".lat").text lat
   li.find(".lng").text lng
@@ -157,13 +164,17 @@ setupMarkerInfoWindow = (marker, metaData) ->
   infoWindows[newInfoWindow.anchor.__gm_id] = newInfoWindow
 
 #
-# Creates a reference to this new marker so we can
-# easily look it up by its __gm_id and manipulate
-# it later.
+# Creates a reference to this new marker so we can easily look it up later. If
+# there is metaData from rails, we use the location's ID. Otherwise we use
+# the string "new" as the property key, since only one new location can be
+# on the map at once.
 #
-addMarkerToGlobalVar = (marker) ->
-  geoHash = markerGeoHash(marker)
-  markers[geoHash] = marker
+addMarkerToGlobalVar = (marker, metaData) ->
+  if metaData
+    id = propertyFromRubyResponse(metaData, "id")
+    markers[id] = marker
+  else
+    markers["new"] = marker
 
 #
 # Show, visually, the new markers coordinants and a
@@ -172,15 +183,15 @@ addMarkerToGlobalVar = (marker) ->
 showNewMarkerInList = (marker) ->
   lat = marker.position.lat()
   lng = marker.position.lng()
-  geoHash = markerGeoHash(marker)
+  locationId = marker.id || "new"
   toShow = "Lat: <span class='lat'>" + lat + "</span>, Long: <span class='lng'>" + lng + "</span>"
-  removeButton = $("<a>").attr("href", "javascript:void(0)").addClass("remove").attr("geo-hash", geoHash).text("Remove")
-  saveButton = $("<a>").attr("href", "javascript:void(0)").addClass("save-location").attr("geo-hash", geoHash).text("Save")
-  newItem = $("<li>").attr("geo-hash", geoHash).attr("marker-id", marker.__gm_id).html(toShow).append("<br />").append(removeButton).append(" ").append(saveButton)
+  removeButton = $("<a>").attr("href", "javascript:void(0)").addClass("remove").attr("location-id", locationId).text("Remove")
+  saveButton = $("<a>").attr("href", "javascript:void(0)").addClass("save-location").attr("location-id", locationId).text("Save")
+  newItem = $("<li>").attr("location-id", locationId).html(toShow).append("<br />").append(removeButton).append(" ").append(saveButton)
   $(".locations").append newItem
 
 #
-# Removes a marker based on it's __gm_id from the map canvas
+# Removes a marker based on it's locationID from the map canvas
 #
 removeMarkerFromMap = (marker) ->
 
@@ -194,7 +205,7 @@ removeMarkerFromMap = (marker) ->
   removeMarkerDetailsFromList marker
 
   # Delete the property from the global markers variable
-  delete markers[markerGeoHash(marker)]
+  delete markers[marker.id]
 
   # Not sure if this is needed...
   # delete marker
@@ -207,14 +218,13 @@ removeMarkerFromMap = (marker) ->
 # after it has been moved around the map.
 #
 removeMarkerDetailsFromList = (marker) ->
-  $(".locations").find("li[geo-hash='" + markerGeoHash(marker) + "']").remove()
-  $(".locations").find("li[marker-id='" + marker.__gm_id + "']").remove()
+  $(".locations").find("li[location-id='" + marker.id + "']").remove()
 
 #
 # Saves a marker for the current user
 #
-saveMarker = (geoHash) ->
-  marker = markers[geoHash]
+saveMarker = (locationId) ->
+  marker = markers[locationId]
   lat = marker.position.lat()
   lng = marker.position.lng()
   locationData =
@@ -238,13 +248,22 @@ saveMarker = (geoHash) ->
 # Upon clicking a marker, do a lookup for it's info window content
 #
 generateMarkerInfoWindowContent = (marker, metaData) ->
-  metaData = metaData.replace(/&quot;/g, "\"")
-  metaData = JSON.parse(metaData).location
-  user_id = metaData.user_id
+  markerId = marker.id
+  user_id = propertyFromRubyResponse(metaData, "user_id")
   "<div id=\"content\"><div id=\"siteNotice\"></div>
   <h5 id=\"firstHeading\" class=\"firstHeading\">Loaded from database</h5>
-  <div id=\"bodyContent\"><p>Owned by user with <b>id: #{user_id}</b></p>
+  <div id=\"bodyContent\"><p>Owned by user with <b>id: #{user_id}</b><br/>
+  Location id: #{markerId}</p>
   </div></div>"
+
+#
+# Gets the location property from the ruby response that comes from the rails
+# action.
+#
+propertyFromRubyResponse = (metaData, prop) ->
+  metaData = metaData.replace(/&quot;/g, "\"")
+  metaData = JSON.parse(metaData).location
+  metaData[prop]
 
 #
 # Info window content when users click on a marker that is not yet saved
@@ -276,8 +295,3 @@ isMarkerOutOfBounds = (marker) ->
 updateMarkerLog = ->
   markersInObject = Object.keys(markers).length
   $(".markers-count").text markersInObject
-
-# Generates a unique value for this marker using its lat long
-markerGeoHash = (marker) ->
-  coordinatesHash = [marker.getPosition().lat(), marker.getPosition().lng()].join("")
-  coordinatesHash.replace(/\./g, "").replace(/,/g, "").replace /-/g, ""
