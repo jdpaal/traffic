@@ -59,7 +59,12 @@ global.initHomePageMap = ->
   # 1) Remove locations that are now out of view area
   # 2) TODO: load in any new locations that aren't in the view but need to be
   #
-  google.maps.event.addListener map, "bounds_changed", processBoundsChange
+  # It turns out the event "idle" is better than "bounds_changed" since the
+  # latter fires too many times during a click and drag of the map.
+  #
+  # https://developers.google.com/maps/documentation/javascript/3.exp/reference#Map
+  #
+  google.maps.event.addListener map, "idle", processBoundsChange
 
 # Ends initHomePageMap()
 
@@ -290,12 +295,26 @@ unsavedLocationInfoWindowContent = ->
 # TODO: add in markers that now need to be in the view
 processBoundsChange = ->
   removeMarkersOutOfView()
+  addMarkersNowInView()
   updateMarkerLog()
 
 # Looks through markers and removes the ones that are out of view.
 removeMarkersOutOfView = ->
   for k,marker of markers
     removeMarkerFromMap marker if isMarkerOutOfBounds(marker)
+
+# Gets locations and adds the ones that need to be included in the map view
+# after the map bounds change (pan/zoom)
+addMarkersNowInView = ->
+  $.ajax
+    type: "GET"
+    url: "/locations/all"
+    success: (data) ->
+      console.log "Success addMarkersNowInView"
+    error: (data) ->
+      alert "Error addMarkersNowInView"
+    complete: (data) ->
+      console.log "Done addMarkersNowInView"
 
 # Simple check to see if a marker is out of the map's current view area
 # ("bounds")
