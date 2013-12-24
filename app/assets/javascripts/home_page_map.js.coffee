@@ -94,38 +94,48 @@ homePageMapOptions = ->
 # location, so we can use it to get the owner id, and more.
 #
 global.placeMarker = (data) ->
-
-  # TODO: Stop if this marker already exists on the map
   metaData = data.metaData or false
-  marker = new google.maps.Marker(
-    position: data.location
-    draggable: (if (data.draggable is `undefined`) then true else data.draggable)
-    animation: google.maps.Animation.DROP
-    map: map
-    icon: data.icon or "http://maps.google.com/intl/en_us/mapfiles/ms/micons/yellow.png"
-  )
 
-  # If this location is loaded from db, we use it's ID in the database as the
-  # id property of the marker. If it is not coming from the database then it is
-  # a new, unsaved location and we give it the key "new".
-  if metaData
-    marker.id = propertyFromRubyResponse(metaData, "id")
-  else
-    marker.id = "new"
+  # Don't re-add markers already on the map
+  unless metaData and markerAlreadyInView(metaData)
 
-  # Event listener for dragging new marker
-  google.maps.event.addListener marker, "dragend", updateMarkerPosition
+    marker = new google.maps.Marker(
+      position: data.location
+      draggable: (if (data.draggable is `undefined`) then true else data.draggable)
+      animation: google.maps.Animation.DROP
+      map: map
+      icon: data.icon or "http://maps.google.com/intl/en_us/mapfiles/ms/micons/yellow.png"
+    )
 
-  # Event listener for clicking a marker to open an info window
-  google.maps.event.addListener marker, "click", ->
-    setupMarkerInfoWindow this, metaData
+    # If this location is loaded from db, we use it's ID in the database as the
+    # id property of the marker. If it is not coming from the database then it is
+    # a new, unsaved location and we give it the key "new".
+    if metaData
+      marker.id = propertyFromRubyResponse(metaData, "id")
+    else
+      marker.id = "new"
 
-  # Save marker in a global so it can be referenced later by its ID
-  addMarkerToGlobalVar marker, metaData
+    # Event listener for dragging new marker
+    google.maps.event.addListener marker, "dragend", updateMarkerPosition
 
-  # Render the marker to the view
-  showNewMarkerInList marker
-  updateMarkerLog()
+    # Event listener for clicking a marker to open an info window
+    google.maps.event.addListener marker, "click", ->
+      setupMarkerInfoWindow this, metaData
+
+    # Save marker in a global so it can be referenced later by its ID
+    addMarkerToGlobalVar marker, metaData
+
+    # Render the marker to the view
+    showNewMarkerInList marker
+    updateMarkerLog()
+
+#
+# Check to see if a given marker is already shown in the view. We do this by
+# seeing if our global object markers has a key/value for the key markerId
+#
+markerAlreadyInView = (metaData) ->
+  markerId = propertyFromRubyResponse(metaData, "id")
+  markerId of markers
 
 #
 # Fired after dragging a marker. Note that 'this' is the marker.
