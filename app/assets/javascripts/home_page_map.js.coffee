@@ -57,7 +57,7 @@ global.initHomePageMap = ->
   # bounds_changed event and then do two things:
   #
   # 1) Remove locations that are now out of view area
-  # 2) TODO: load in any new locations that aren't in the view but need to be
+  # 2) Load in any new locations that aren't in the view but need to be
   #
   # It turns out the event "idle" is better than "bounds_changed" since the
   # latter fires too many times during a click and drag of the map.
@@ -312,7 +312,7 @@ addMarkersNowInView = ->
     success: (data) ->
       console.log "Success addMarkersNowInView"
     error: (data) ->
-      alert "Error addMarkersNowInView"
+      alert "Error addMarkersNowInView - make sure you are logged in"
     complete: (data) ->
       console.log "Done addMarkersNowInView"
 

@@ -8,11 +8,9 @@ Traffic::Application.routes.draw do
   # Resources
   #
 
-  resources :locations, only: [:index, :new, :create, :destroy]
+  resources :locations, only: [:index, :create, :destroy]
 
-  resources :users do
-    get "users/new"
-  end
+  resources :users, only: [:show, :new, :create]
 
   authenticated :user do
     root :to => "static_pages#home"

@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+  before_filter :authenticate_user!, :only => [:locations, :show]
 
   respond_to :js, :html
 
@@ -7,7 +8,7 @@ class UsersController < ApplicationController
   #
 
   def new
-  	@user = User.new
+    @user = User.new
   end
 
   def create
